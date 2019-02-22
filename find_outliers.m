@@ -4,7 +4,6 @@ function [mask] = find_outliers(office,dist_treshold,min_neig,height,width)
 range = 13;
 mask = {};
     for i = 1:length(office)
-        i
         points = office{i}.Location;
         mask{i} = ones(1,length(points));
         for j=1:length(points)
