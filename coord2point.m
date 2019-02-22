@@ -1,3 +1,2 @@
-function i = coord2point(x,y)
-    heigth = 6;
+function i = coord2point(x,y,heigth)
     i = (x-1)*heigth+ y;

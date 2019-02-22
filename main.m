@@ -2,8 +2,10 @@
 clear
 file_name = 'office1.mat';
 distance_threshold = 4;
+im_height = 640;
+im_width = 480;
 remove_man = false;
-square_dist_neig_treshold = 0.1;
+square_dist_neig_treshold = 0.05^2;
 minimum_neig = 15;
 %% Read the data
 office_data = load(file_name);
@@ -23,7 +25,7 @@ if remove_man
 end
 % select outling points like flying pixels, spike and data near the edges
 % TODO
-outlier_removed = find_outliers(office_data,square_dist_neig_treshold, minimum_neig);
+outlier_removed = find_outliers(office_data,square_dist_neig_treshold, minimum_neig,im_height,im_width);
 removed_points = removed_points .* outlier_removed;
 
 % remove all points selected

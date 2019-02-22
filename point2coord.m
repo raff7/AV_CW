@@ -1,6 +1,6 @@
-function [x,y] = point2coord(i)
+function [x,y] = point2coord(i,height)
 
-height = 6;
+
 y =  mod(i-1,height)+1;
 x =  floor((i-1)/height)+1;
 end

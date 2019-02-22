@@ -1,6 +1,7 @@
-function [mask] = find_outliers(office,dist_treshold,min_neig)
+function [mask] = find_outliers(office,dist_treshold,min_neig,height,width)
 %FIND_OUTLIERS Summary of this function goes here
 %   Detailed explanation goes here
+range = 15;
 mask = {};
     for i = 1:length(office)
         i
@@ -10,11 +11,12 @@ mask = {};
             if(~isnan(points(j,1)))%Ignore NAN points
                 p = points(j,:);
                 p_neig_count=0;
-                px,py = point2coord(j);
-                for x=px-range:px+range
+                [px,py] = point2coord(j, height);%get 2d coordinates from index
+                
+                for x=max(px-range,1):min(px+range,width)%go only trough the 2d neigbours
                     flag_break = false;%flag used to break out of loop
-                    for y=py-range:py+range
-                        p2index = coord2point(x,y);
+                    for y=max(py-range,1):min(py+range,height)
+                        p2index = coord2point(x,y,height);%get index from 2d coordinates
                         p2=points(p2index,:);
                         dist = ((p(1)-p2(1))^2 + (p(2)-p2(2))^2 + (p(3)-p2(3))^2);
                         if(dist<dist_treshold)
@@ -30,7 +32,7 @@ mask = {};
                     end
                 end
                 if(p_neig_count < min_neig)%mask it if not enough neigbours
-                    mask{i}(p) = 0;
+                    mask{i}(j) = 0;
                 end
             end
         end
