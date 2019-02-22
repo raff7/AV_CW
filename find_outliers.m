@@ -1,7 +1,7 @@
 function [mask] = find_outliers(office,dist_treshold,min_neig,height,width)
 %FIND_OUTLIERS Summary of this function goes here
 %   Detailed explanation goes here
-range = 15;
+range = 13;
 mask = {};
     for i = 1:length(office)
         i
