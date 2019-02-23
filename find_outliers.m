@@ -5,7 +5,7 @@ range = 13;
 mask = {};
     for i = 1:length(office)
         points = office{i}.Location;
-        mask{i} = ones(1,length(points));
+        mask{i} = ones(1,length(points));%mask of removed pixels, initialized to 1(not removed) in order to use multiplication as a logical AND.
         for j=1:length(points)
             if(~isnan(points(j,1)))%Ignore NAN points
                 p = points(j,:);

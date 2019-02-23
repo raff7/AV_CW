@@ -17,7 +17,6 @@ pcshow(office_data{1})
 
 %% Preprocessing
 % Keep track of all of the points removed for all frames
-removed_points = [];
 
 % select all points in point with z > threshold
 removed_points  = find_distant_points(office_data, distance_threshold);
