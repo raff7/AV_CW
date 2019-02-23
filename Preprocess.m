@@ -21,35 +21,35 @@ classdef Preprocess < handle
             data = load(file_name);
             data = data.pcl_train;
 
-            self.data = data;%(27);
+            self.data = data(27);
             self.original_data = self.data;
-            pcshow(self.data{1});
+            self.show()
             self.removed_points = cell(1,length(self.data));
             for i=1:length(self.data)
                 self.removed_points{i} =  ones(1,length(self.data{1}.Location));
             end
         end
         
-        function mask = find_NaN(self)
+        function find_NaN(self)
             %find_NaN, self explinatory, find NaN and add them to the
             %masked values.
             mask = {};
-            for i = 1:length(self.data)
-                point = self.data{i}.Location;
+            for i = 1:length(self.original_data)
+                point = self.original_data{i}.Location;
                 %maybe remove index_i = find(isnan(point(:,3)));%remove NaN values.
                 mask{i} = ones(1,length(point));
                 mask{i}(1,isnan(point(:,3))) = 0;
             end
            self.merge_masks(mask);%Merge themask to previously eliminated pixels
-           self.remove_masked_points()
+           self.remove_masked_points()%remove masked points from data
         end
         
-        function mask = find_distant_points(self)
+        function find_distant_points(self)
             %FIND_DISTANT_POINTS Find all the points over a Z-coordinate treshold
             %   Detailed explanation goes here
             mask = {};
-            for i = 1:length(self.data)
-                point = self.data{i}.Location;
+            for i = 1:length(self.original_data)
+                point = self.original_data{i}.Location;
                 index_i = find(point(:,3)>self.distance_threshold); %remove points with z value > than treshold
                 mask{i} = ones(1,length(point));
                 mask{i}(1,index_i) = 0;
@@ -58,13 +58,13 @@ classdef Preprocess < handle
             self.remove_masked_points()%remove mask from image
         end
        
-      function mask = find_edge(self)
+        function find_edges(self)
             %FIND_EDGE Find the points on the edge of the image
             %  W is the distance in pixels from the edge to be considered part of the
             %  edge, office is the original cell of point clouds
             mask = {};
-            for i = 1:length(self.data)
-                points = self.data{i}.Location;
+            for i = 1:length(self.original_data)
+                points = self.original_data{i}.Location;
                 mask{i} = ones(1,length(points)); 
                 for j=1:length(points)
                     [x,y]=point2coord(j,self.im_height);
@@ -74,10 +74,10 @@ classdef Preprocess < handle
                 end
             end
             self.merge_masks(mask);%Merge themask to previously eliminated pixels
-            self.remove_masked_points()%remove mask from image
+            self.remove_masked_points()%remove masked points from data
       end
         
-      function mask = find_outliers(self)
+      function find_outliers(self)
            mask = {};
             for i = 1:length(self.original_data)
                 i
@@ -90,10 +90,10 @@ classdef Preprocess < handle
             self.remove_masked_points()
       end
         
-        function data = remove_masked_points(self)
+        function remove_masked_points(self)
             %Function to apply a mask to office_data
             %   keeps pixels whre mask is 1, remove where is 0
-            self.data = cell(1,length(self.data));
+            self.data = cell(1,length(self.original_data));
             for i=1:length(self.removed_points)
                 rgb = self.original_data{i}.Color; % Extracting the colour data
                 point = self.original_data{i}.Location; % Extracting the xyz data
@@ -126,8 +126,9 @@ classdef Preprocess < handle
         
         function show(self,i)
             if nargin==1
-                i=27;
+                i=1;
             end
+            figure()
             pcshow(self.data{i});
         end
         
