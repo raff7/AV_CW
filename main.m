@@ -1,5 +1,7 @@
 %% Configuration and params
 clear
+addpath('./preprocess/');
+addpath('./utils/');
 file_name = 'office1.mat';
 im_height = 640;
 im_width = 480;
@@ -42,7 +44,7 @@ if remove_man
     for i=1:length(removed_points)
         removed_points{i} = removed_points{i}.*man_removed{i};
     end
-    new_office_data = remove_mask(office_data, removed_points);
+    %new_office_data = remove_mask(office_data, removed_points);
     %figure()
     %pcshow(new_office_data{1})
 end
