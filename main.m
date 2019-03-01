@@ -5,8 +5,9 @@ im_height = 640;
 im_width = 480;
 distance_threshold = 3.5;%to remove points outside the window
 W_edge = 5;%distance from the edge (in pixels) to be removed
-remove_man = false;
-square_dist_neig_treshold = 0.05^2;%distance to consider 2 points "neighbours"
+remove_man = true; %If to remove beautiful man in pc
+man_frame = 1; %What frame is the beautiful man
+square_dist_neig_treshold = 0.05^2;%square distance (m) in to consider 2 points "neighbours"
 minimum_neig = 80;%minimum number of neighbours needed to stay
 %% Read the data
 office_data = load(file_name);
@@ -37,10 +38,13 @@ pcshow(new_office_data{1})
 % select all points belonging to that handsome man in frame 27
 % TODO
 if remove_man
-    man_removed = find_handsome_man(office_data);
+    man_removed = find_handsome_man(office_data, man_frame);
     for i=1:length(removed_points)
         removed_points{i} = removed_points{i}.*man_removed{i};
     end
+    new_office_data = remove_mask(office_data, removed_points);
+    %figure()
+    %pcshow(new_office_data{1})
 end
 
 % select outling points like flying pixels, spike and data near the edges
