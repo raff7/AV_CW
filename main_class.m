@@ -1,3 +1,4 @@
+addpath('./utils/');
 prep = Preprocess("office1.mat");
 prep.find_NaN()
 prep.find_edges()
