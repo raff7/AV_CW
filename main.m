@@ -60,3 +60,17 @@ pcshow(new_office_data{1})
 
 % remove all points selected
 office_data = remove_mask(office_data, removed_points);
+%% Find features, match them and find coord transform
+
+% surf_first = surf(office{1}.graypic)
+% surf_first = surf_first(mask{1})
+% [feat_first, pts_first] = extractFeatures(pic, surf)
+% for i = 2:last
+%   surf_second = surf(office{i}.graypic)
+%   surf_second = surf_second(mask{i})
+%   [feat_sec, pts_sec] = extractFeatures(pic, surf)
+%   idx_pairs = matchFeatures(feat_first, feat_sec)
+%   [mtch_srf_first, mtch_srf_sec] = find the surf points that match
+%   coord_transf = find the coord transf (mtch_srf_first, mtch_srf_sec)
+%   
+%   first <- second
