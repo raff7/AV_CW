@@ -8,6 +8,7 @@ classdef Preprocess < handle
         distance_threshold = 3.5;%Treshold of z-distance to remove points.
         W_edge = 5;%distance from the edge (in pixels) to be removed
         remove_man = false;%Do we want to remove bob?
+        man_frame = 1;
         square_dist_neig_treshold = 0.05;%minimum istance to consider 2 points "neighbours" (in meters)
         minimum_neig = 80;%minimum number of neighbours needed to stay
         removed_points% Keep track of all of the points removed for all frames
@@ -89,7 +90,23 @@ classdef Preprocess < handle
             self.merge_masks(mask)
             self.remove_masked_points()
       end
-        
+      function remove_handsome_man(self)
+            % Find two plane boundaries (parallel to y axis) that cut out the man's points
+            % from the point cloud. Being parallel to y, we can simply find 
+            % two line equations instead.
+            mask = {};
+            for i = 1:length(self.original_data)
+                mask{i} = ones(1, length(self.original_data{i}.Location));
+            end
+
+            % Line 1 eq: x < 0
+            % Line 2 eq: z < 2
+            points = self.original_data{self.man_frame}.Location;
+            mask{self.man_frame}(points(:,1)<0 & points(:,3)<2) = 0;
+            
+            self.merge_masks(mask);
+            self.remove_masked_points()
+      end
         function remove_masked_points(self)
             %Function to apply a mask to office_data
             %   keeps pixels whre mask is 1, remove where is 0
