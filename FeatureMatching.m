@@ -23,12 +23,12 @@ classdef FeatureMatching < handle
             %% Find features, match them
             pic1 = rgb2gray(imag2d(self.prep.original_data{1}.Color));
             %pic1 = pic1 .* uint8(transpose(reshape(self.prep.removed_points{1},[640, 480])));
-            surf1 = detectSURFFeatures(pic1);
+            surf1 = detectSURFFeatures(pic1, 'MetricThreshold', 500);
             surf1= self.remove_masked_surfs(surf1,1);
             [feat1, pts1] = extractFeatures(pic1, surf1);
             for i = 2:length(self.prep.original_data)
                pic2 = rgb2gray(imag2d(self.prep.original_data{i}.Color));
-               surf2 = detectSURFFeatures(pic2);
+               surf2 = detectSURFFeatures(pic2, 'MetricThreshold', 500);
                surf2= self.remove_masked_surfs(surf2,i);
                %surf2 = surf2(imag2d(reshape(self.prep.removed_points{i},[640, 480])))
                [feat2, pts2] = extractFeatures(pic2, surf2);
@@ -37,8 +37,8 @@ classdef FeatureMatching < handle
                matchedPoints2 = pts2(idx_pairs(:,2  ));
                figure; showMatchedFeatures(pic1,pic2,matchedPoints1,matchedPoints2);
                legend('matched points 1','matched points 2');
-               figure; imshow(pic1)
-               figure; imshow(pic2)
+               %figure; imshow(pic1)
+               %figure; imshow(pic2)
                pic1 = pic2;
                surf1 = surf2;
                feat1 = feat2;
