@@ -1,5 +1,5 @@
-function imag2d(rgb)
-    new_rgb =[];
+function new_img = imag2d(rgb)
+    new_img =[];
     color_pc = rgb;
 
     %% Extracting the r, g, b colours
@@ -11,7 +11,6 @@ function imag2d(rgb)
     rec_r = reshape(r, [640, 480]);
     rec_g = reshape(g, [640, 480]);
     rec_b = reshape(b, [640, 480]);
-    new_rgb = cat(3, rec_r', rec_g', rec_b');
-    imshow(new_rgb)
-    pause(0.1)
+    new_img = cat(3, rec_r', rec_g', rec_b');
+    
 end

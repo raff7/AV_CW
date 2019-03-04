@@ -8,7 +8,7 @@ classdef Preprocess < handle
         distance_threshold = 3.5;%Treshold of z-distance to remove points.
         W_edge = 5;%distance from the edge (in pixels) to be removed
         remove_man = false;%Do we want to remove bob?
-        man_frame = 1;
+        man_frame = 2;
         square_dist_neig_treshold = 0.05;%minimum istance to consider 2 points "neighbours" (in meters)
         minimum_neig = 80;%minimum number of neighbours needed to stay
         removed_points% Keep track of all of the points removed for all frames
@@ -20,11 +20,8 @@ classdef Preprocess < handle
         function self = Preprocess(file_name)
             %% Read the data
             data = load(file_name);
-            data = data.pcl_train;
-
-            self.data = data(27);
+            self.data = data.pcl_train(26:30);
             self.original_data = self.data;
-            self.show()
             self.removed_points = cell(1,length(self.data));
             for i=1:length(self.data)
                 self.removed_points{i} =  ones(1,length(self.data{1}.Location));
@@ -81,7 +78,7 @@ classdef Preprocess < handle
       function find_outliers(self)
            mask = {};
             for i = 1:length(self.original_data)
-                i
+                removing_outliers_from_frame = i
                 points = self.original_data{i}.Location;
                 mask{i} = ones(1,length(points));%mask of removed pixels, initialized to 1(not removed) in order to use multiplication as a logical AND.
                 [~,D] = knnsearch(points,points,'K',self.minimum_neig+1,'distance','euclidean');
