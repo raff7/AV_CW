@@ -20,7 +20,7 @@ classdef Preprocess < handle
         function self = Preprocess(file_name)
             %% Read the data
             data = load(file_name);
-            self.data = data.pcl_train(20:25);
+            self.data = data.pcl_train;
             self.original_data = self.data;
             self.removed_points = cell(1,length(self.data));
             for i=1:length(self.data)
@@ -140,22 +140,15 @@ classdef Preprocess < handle
         
         function show(self,i)
             if nargin>1
-               close all
-               figure('Position',[0 300 700 500])
-               pcshow(self.data{i})
-               figure('Position',[650 100 700 500])
-               mask_img = bsxfun(@times, self.original_data{i}.Color(), cast(self.removed_points{i}(:), 'like', self.original_data{i}.Color()));
-               imshow(imag2d(mask_img));
-               pause(2)
+                figure()
+                pcshow(self.data{i});
             else
                 for i=1:length(self.original_data)
                     close all
                     figure('Position',[0 300 700 500])
                     pcshow(self.data{i})
                     figure('Position',[650 100 700 500])
-                    mask_img = bsxfun(@times, self.original_data{i}.Color(), cast(self.removed_points{i}(:), 'like', self.original_data{i}.Color()));
-                    imshow(imag2d(mask_img));
-                    pause(2)
+                    pcshow(self.data{i})
                 end
             end
         end
