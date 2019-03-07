@@ -8,4 +8,4 @@ addpath('./utils/');
 %prep.find_outliers()
 %prep.show()
 ft = FeatureMatching("office1.mat"); 
-ft.matchSurf();
+solution = ft.matchSurf();
