@@ -5,7 +5,7 @@ classdef FeatureMatching < handle
     properties
         prep
         SURFSensitivity = 800
-        
+        minSURFpoints = 6
     end
     
     methods
@@ -56,9 +56,13 @@ classdef FeatureMatching < handle
                matchedPoints1_mask = pts1_mask(idx_pairs_mask(:,1));
                matchedPoints1 = pts1(idx_pairs(:,1));
                matchedPoints2_mask = pts2_mask(idx_pairs_mask(:,2  ));
-               matchedPoints2 = pts2(idx_pairs(:,2  ));
+               matchedPoints2 = pts2(idx_pairs(:,2));
                
-               Match_Points{i-1} = [pts1(idx_pairs(:,1)); pts2(idx_pairs(:,2))]
+               if length(matchedPoints1_mask) < self.minSURFpoints
+                   break
+               end
+               
+               Match_Points{i-1} = [pts1(idx_pairs(:,1)); pts2(idx_pairs(:,2))];
                
                self.show(pic1,pic2,matchedPoints1_mask,matchedPoints2_mask,matchedPoints1,matchedPoints2,surf1,surf2,i1,i2)
               
