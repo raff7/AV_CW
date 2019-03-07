@@ -4,7 +4,7 @@ classdef FeatureMatching < handle
     
     properties
         prep
-        SURFSensitivity = 800
+        SURFSensitivity = 1000
         
     end
     
@@ -58,7 +58,9 @@ classdef FeatureMatching < handle
                matchedPoints2_mask = pts2_mask(idx_pairs_mask(:,2  ));
                matchedPoints2 = pts2(idx_pairs(:,2  ));
                
-               Match_Points{i-1} = [pts1(idx_pairs(:,1)); pts2(idx_pairs(:,2))]
+               Match_Points{i-1}.SURF1 = pts1(idx_pairs(:,1));
+               Match_Points{i-1}.SURF2 = pts2(idx_pairs(:,2));
+               Match_Points{i-1}.ID1 = i1
                
                self.show(pic1,pic2,matchedPoints1_mask,matchedPoints2_mask,matchedPoints1,matchedPoints2,surf1,surf2,i1,i2)
               
@@ -88,26 +90,28 @@ classdef FeatureMatching < handle
         function show(self,pic1,pic2,matchedPoints1_mask,matchedPoints2_mask,matchedPoints1,matchedPoints2,surf1,surf2,i1,i2)
              %Plot matched features and connections
              close all
-             figure('Position',[400 450 600 400])
+             figure('Position',[400 450 700 500])
              showMatchedFeatures(pic1,pic2,matchedPoints1_mask,matchedPoints2_mask);
              legend('matched points 1','matched points 2');
              
              %plot image1, and SURF points (matched, not matched and
              %masked)
-             figure('Position',[750 50 600 400])
+             figure('Position',[750 50 700 500])
              imshow(imag2d(self.prep.original_data{i1}.Color))
              hold on;
              scatter(surf1.Location(:,1),surf1.Location(:,2),'r')
              scatter(matchedPoints1.Location(:,1),matchedPoints1.Location(:,2),'r','filled')
              scatter(matchedPoints1_mask.Location(:,1),matchedPoints1_mask.Location(:,2),'g','filled')
-             
-             figure('Position',[0 50 600 400])
+             legend('Unmatched points','Masked points','Matched points');
+
+             figure('Position',[0 50 700 500])
              imshow(imag2d(self.prep.original_data{i2}.Color))
              hold on;
              scatter(surf2.Location(:,1),surf2.Location(:,2),'r')
              scatter(matchedPoints2.Location(:,1),matchedPoints2.Location(:,2),'r','filled')
              scatter(matchedPoints2_mask.Location(:,1),matchedPoints2_mask.Location(:,2),'g','filled')
-             
+             legend('Unmatched points','Masked points','Matched points');
+
              pause(2)
         end
     end
