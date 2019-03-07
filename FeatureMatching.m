@@ -5,7 +5,7 @@ classdef FeatureMatching < handle
     properties
         prep
         SURFSensitivity = 800
-        HIGH_SURFSensitivity = 100
+        HIGH_SURFSensitivity = 300
         minSURFpoints = 6
     end
     
@@ -79,7 +79,7 @@ classdef FeatureMatching < handle
                         Match_Points{count}.ID1 = i1;
                         Match_Points{count}.ID2 = i2;
                         count = count + 1;
-                        self.show(pic1,pic2,matchedPoints1_mask,matchedPoints2_mask,new_surf1_mask,new_surf2_mask,i1,i2)
+                        self.show(pic1,pic2,new_matchedPoints1_mask,new_matchedPoints2_mask,new_surf1_mask,new_surf2_mask,i1,i2)
               
                     end
                else
