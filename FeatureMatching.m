@@ -10,39 +10,65 @@ classdef FeatureMatching < handle
     methods
         function self = FeatureMatching(file)
             %FEATUREMATCHING Construct an instance of this class
-            %   Detailed explanation goes here
+            %   In it, construct a preprocess object.
             self.prep = Preprocess(file);
+            fprintf("Start Preprocessing- Find NaN\n")
             self.prep.find_NaN()
+            fprintf("NaN found- Find edges\n")
             self.prep.find_edges()
+            fprintf("found edges- Find distante points\n")
             self.prep.find_distant_points()
-            self.prep.remove_handsome_man()
+            if self.prep.remove_man
+                fprintf("found Distant points- Find BOB\n")
+                self.prep.remove_handsome_man()
+                fprintf("found BOB- Find outliers\n")
+            else
+                fprintf("found Distant points- Find Outliers\n")
+            end
             self.prep.find_outliers()
+            fprintf("DONE")
         end
         
         function matchSurf(self)
             %% Find features, match them
             pic1 = rgb2gray(imag2d(self.prep.original_data{1}.Color));
-            %pic1 = pic1 .* uint8(transpose(reshape(self.prep.removed_points{1},[640, 480])));
-            surf1 = detectSURFFeatures(pic1, 'MetricThreshold', 500);
-            surf1= self.remove_masked_surfs(surf1,1);
+            surf1 = detectSURFFeatures(pic1, 'MetricThreshold', 600);
+            surf1_mask= self.remove_masked_surfs(surf1,1);
+            %extract both all SURF points
             [feat1, pts1] = extractFeatures(pic1, surf1);
+            %and just the valid SURF points (Elimiating the masked ones)
+            [feat1_mask, pts1_mask] = extractFeatures(pic1, surf1_mask);
             for i = 2:length(self.prep.original_data)
                pic2 = rgb2gray(imag2d(self.prep.original_data{i}.Color));
-               surf2 = detectSURFFeatures(pic2, 'MetricThreshold', 500);
-               surf2= self.remove_masked_surfs(surf2,i);
-               %surf2 = surf2(imag2d(reshape(self.prep.removed_points{i},[640, 480])))
+               surf2 = detectSURFFeatures(pic2, 'MetricThreshold', 600);
+               surf2_mask= self.remove_masked_surfs(surf2,i);
+               
                [feat2, pts2] = extractFeatures(pic2, surf2);
+               [feat2_mask, pts2_mask] = extractFeatures(pic2, surf2_mask);
+               
+               idx_pairs_mask = matchFeatures(feat1_mask, feat2_mask);
                idx_pairs = matchFeatures(feat1, feat2);
+               
+               matchedPoints1_mask = pts1_mask(idx_pairs_mask(:,1));
                matchedPoints1 = pts1(idx_pairs(:,1));
+               matchedPoints2_mask = pts2_mask(idx_pairs_mask(:,2  ));
                matchedPoints2 = pts2(idx_pairs(:,2  ));
-               figure; showMatchedFeatures(pic1,pic2,matchedPoints1,matchedPoints2);
+               
+               Match_Points{i-1} = [pts1(idx_pairs(:,1)); pts2(idx_pairs(:,2))]
+               
+               
+               close all
+               figure()
+               showMatchedFeatures(pic1,pic2,matchedPoints1_mask,matchedPoints2_mask);
                legend('matched points 1','matched points 2');
-               %figure; imshow(pic1)
-               %figure; imshow(pic2)
+               pause(0.25)
+               
+           
+               %advance loop
                pic1 = pic2;
-               surf1 = surf2;
-               feat1 = feat2;
-               pts1= pts2;
+               surf1_mask = surf2_mask;
+               feat1_mask = feat2_mask;
+               pts1_mask= pts2_mask;
             end
         end
         function new_surf = remove_masked_surfs(self,surf,frameIDX)
