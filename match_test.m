@@ -30,7 +30,7 @@ dist_fnc = @(model, data) err_affine_transf(model, data);
 
 ransac_input = [data, noisy_transf_data(:, 1:3)];
 
-[estimated, inlier_ids] = ransac(ransac_input,fit_fnc,dist_fnc,4,0.1);
+[estimated, inlier_ids] = ransac(ransac_input,fit_fnc,dist_fnc,4,0.05);
 
 sum(inlier_ids)
 affine_mat
