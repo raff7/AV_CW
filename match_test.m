@@ -28,7 +28,9 @@ noisy_transf_data = transformed_data + noise;
 fit_fnc = @(data) fit_affine_transf(data);
 dist_fnc = @(model, data) err_affine_transf(model, data);
 
-[estimated, inlier_ids] = ransac(data,fit_fnc,dist_fnc,4,0.1);
+ransac_input = [data, noisy_transf_data(:, 1:3)];
+
+[estimated, inlier_ids] = ransac(ransac_input,fit_fnc,dist_fnc,4,0.1);
 
 sum(inlier_ids)
 affine_mat
