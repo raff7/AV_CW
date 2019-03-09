@@ -54,7 +54,6 @@ classdef FeatureMatching < handle
                matchedPoints1_mask = pts1_mask(idx_pairs_mask(:,1));
                matchedPoints2_mask = pts2_mask(idx_pairs_mask(:,2  ));
                
-               
                if length(matchedPoints1_mask) < self.minSURFpoints %if not enough points are found, increase sensitivity
                    new_surf1 = detectSURFFeatures(pic1, 'MetricThreshold', self.HIGH_SURFSensitivity);
                    new_surf2 = detectSURFFeatures(pic2, 'MetricThreshold', self.HIGH_SURFSensitivity);
