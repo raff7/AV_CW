@@ -59,7 +59,7 @@ classdef FeatureMatching < handle
                matchedPoints2 = pts2(idx_pairs(:,2));
                
                if length(matchedPoints1_mask) < self.minSURFpoints
-                   break
+                   continue
                end
                
                Match_Points{i-1} = [pts1(idx_pairs(:,1)); pts2(idx_pairs(:,2))];
