@@ -135,7 +135,7 @@ classdef Preprocess < handle
         
         function index = coord2point(self,x,y)
             %COORD2POINT, find the point index given the 2d coordinates.
-            index = (x-1)*self.im_height+ y;
+            index = (y-1)*self.im_height+ x;
         end
         
         function show(self,i)

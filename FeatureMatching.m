@@ -30,9 +30,10 @@ classdef FeatureMatching < handle
             self.prep.find_outliers()
             fprintf("DONE")
             self.prep.show()
+
         end
         
-        function Match_Points= matchSurf(self)
+        function transf_Match_Points= matchSurf(self)
             %% Find features, match them
             pic1 = rgb2gray(imag2d(self.prep.original_data{1}.Color));
             i1=1;
@@ -101,6 +102,7 @@ classdef FeatureMatching < handle
                pts1_mask= pts2_mask;
                i1 = i2;
             end
+            transf_Match_Points = self.transform_matchPoints(Match_Points);%Transform matched points in the correct data representation for the next step.
         end
         function new_surf = remove_masked_surfs(self,surf,frameIDX)
             counter = 1;
@@ -139,6 +141,30 @@ classdef FeatureMatching < handle
              legend('Unmatched points','Matched points');
 
              pause(2)
+        end
+        
+        function returning = transform_matchPoints(self,MP)
+            %just a function to shape the point as required
+            returning = {}
+            for i=1:length(MP)
+                pts1 = round(MP{i}.SURF1.Location);
+                pts2 = round(MP{i}.SURF2.Location);
+                points1 = [];
+                points2 = [];
+                for j=1:length(pts1)
+                    idx1 = self.prep.coord2point(pts1(j,1),pts1(j,2));
+                    idx2 = self.prep.coord2point(pts2(j,1),pts2(j,2));
+                    p1 = self.prep.original_data{i}.Location(idx1,:);
+                    p2 = self.prep.original_data{i}.Location(idx2,:);
+                    points1 = [points1; p1];
+                    points2 = [points2; p2];
+                end
+                returning{i}.points1 = points1;
+                returning{i}.points2 = points2;
+                returning{i}.ID1 = MP{i}.ID1;
+                returning{i}.ID2 = MP{i}.ID2;
+
+            end
         end
     end
 end
