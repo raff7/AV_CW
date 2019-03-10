@@ -3,7 +3,7 @@ addpath('./utils/');
 %prep.find_NaN()
 %prep.find_edges()
 %prep.find_distant_points()
-%prep.remove_handsome_man()
+%prep.remove_/handsome_man()
 %prep.show()
 %prep.find_outliers()
 %prep.show()

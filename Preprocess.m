@@ -8,8 +8,8 @@ classdef Preprocess < handle
         im_width = 480; %Size of the input image
         distance_threshold = 3.5;%Treshold of z-distance to remove points.
         W_edge = 5;%distance from the edge (in pixels) to be removed
-        remove_man = true;%Do we want to remove bob?
-        man_frame = 3;
+        remove_man = false;%Do we want to remove bob?
+        man_frame = 27;
         square_dist_neig_treshold = 0.05;%minimum istance to consider 2 points "neighbours" (in meters)
         minimum_neig = 80;%minimum number of neighbours needed to stay
         removed_points% Keep track of all of the points removed for all frames
@@ -21,7 +21,7 @@ classdef Preprocess < handle
         function self = Preprocess(file_name)
             %% Read the data
             data = load(file_name);
-            self.data = data.pcl_train(25:29);
+            self.data = data.pcl_train(32:36);
             self.original_data = self.data;
             self.removed_points = cell(1,length(self.data));
             for i=1:length(self.data)
