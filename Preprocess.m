@@ -3,7 +3,7 @@ classdef Preprocess < handle
     %  to remove unwanted points
     
     properties
-        pause_time = 0.1
+        pause_time = 2
         im_height = 640;%//
         im_width = 480; %Size of the input image
         distance_threshold = 3.5;%Treshold of z-distance to remove points.

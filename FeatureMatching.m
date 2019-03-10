@@ -4,10 +4,10 @@ classdef FeatureMatching < handle
     
     properties
         prep
-        SURFSensitivity = 500
-        HIGH_SURFSensitivity = 100
+        SURFSensitivity = 700
+        HIGH_SURFSensitivity = 300
         minSURFpoints = 6
-        dist_thresh = 10
+        dist_thresh = 0.3
     end
     
     methods
@@ -146,7 +146,7 @@ classdef FeatureMatching < handle
         
         function returning = transform_matchPoints(self,MP)
             %just a function to shape the point as required
-            returning = {}
+            returning = {};
             for i=1:length(MP)
                 pts1 = round(MP{i}.SURF1.Location);
                 pts2 = round(MP{i}.SURF2.Location);
@@ -182,7 +182,7 @@ classdef FeatureMatching < handle
                 pc2 = self.prep.data{match.ID2};
                 n_pts2 = size(pc2.Location, 1);
 
-                new_pts = [pc2.Locations, ones(n_pts2, 1)] / cum_transf;
+                new_pts = [pc2.Location, ones(n_pts2, 1)] / cum_transf;
                 new_pts = new_pts(:, 1:3);
 
                 new_pc2 = pointCloud(new_pts, 'Color', pc2.Color);
@@ -191,7 +191,7 @@ classdef FeatureMatching < handle
 
                 close all
                 pcshow(out_pc)
-                pause(self.prep.pause_time)
+                pause()
 
             end
         end
@@ -207,12 +207,14 @@ classdef FeatureMatching < handle
                 match = matched_pts{i};
                 pts1 = match.points1;
                 pts2 = match.points2;
-                n_points = size(pts1, 1)
+                fprintf("\nMatch %i, between frame %i and %i" ,i,match.ID1,match.ID2)
+
+                n_points = size(pts1, 1);
 
                 ransac_input = [pts1, ones(n_points, 1), pts2, ones(n_points, 1)];
                    
                 [aff_mat, inlier_idx] = ransac(ransac_input,fit_fnc,dist_fnc,4,self.dist_thresh);
-                
+                fprintf("\nsuccess")
                 inlier_count = sum(inlier_idx);
 
                 if inlier_count / n_points < 0.5
