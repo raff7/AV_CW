@@ -168,7 +168,18 @@ classdef Preprocess < handle
                 self.removed_points{i} =  ones(1,length(self.data{1}.Location));
             end
         end
-        
+        function smooth_data(self)
+            for i=1:length(self.original_data)
+            	data = self.original_data{i}.Location(:,3);
+                data = reshape(data,[640, 480]);
+                filt_data = nanconv(data, ones(30)/sum(sum(ones(30))),'edge','nanout');
+                new_data = reshape(filt_data,[640*480,1]);
+                subplot(2,1,1), pcshow(self.original_data{i})
+                loc = [self.original_data{i}.Location(:,1:2),new_data];
+                self.original_data{i}=pointCloud(loc,'Color',self.original_data{i}.Color);
+                subplot(2,1,2), pcshow(self.original_data{i})
+            end
+        end
        
     end
 end

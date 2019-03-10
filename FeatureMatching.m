@@ -10,7 +10,7 @@ classdef FeatureMatching < handle
         harris_match_points_sensitivity = 100 %default = 10
         harris_maxRatio = 0.6
         minSURFpoints = 8
-        dist_thresh = 0.4
+        dist_thresh = 0.2
         grid_parameter = 0.08
        
     end
@@ -20,9 +20,10 @@ classdef FeatureMatching < handle
             %FEATUREMATCHING Construct an instance of this class
             %   In it, construct a preprocess object.
             self.prep = Preprocess(file);
-            fprintf("Start Preprocessing- Find NaN\n")
+            fprintf("Start Preprocessing- Smooth data\n")
+            self.prep.smooth_data()
             self.prep.find_NaN()
-            fprintf("NaN found- Find edges\n")
+            fprintf("smooth data done- Find edges\n")
             self.prep.find_edges()
             fprintf("found edges- Find distante points\n")
             self.prep.find_distant_points()
