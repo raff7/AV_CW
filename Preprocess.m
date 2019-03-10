@@ -3,6 +3,7 @@ classdef Preprocess < handle
     %  to remove unwanted points
     
     properties
+        pause_time = 0.1
         im_height = 640;%//
         im_width = 480; %Size of the input image
         distance_threshold = 3.5;%Treshold of z-distance to remove points.
@@ -146,7 +147,7 @@ classdef Preprocess < handle
                figure('Position',[650 100 700 500])
                mask_img = bsxfun(@times, self.original_data{i}.Color(), cast(self.removed_points{i}(:), 'like', self.original_data{i}.Color()));
                imshow(imag2d(mask_img));
-               pause(2)
+               pause(self.pause_time)
             else
                 for i=1:length(self.original_data)
                     close all
@@ -155,7 +156,7 @@ classdef Preprocess < handle
                     figure('Position',[650 100 700 500])
                     mask_img = bsxfun(@times, self.original_data{i}.Color(), cast(self.removed_points{i}(:), 'like', self.original_data{i}.Color()));
                     imshow(imag2d(mask_img));
-                    pause(2)
+                    pause(self.pause_time)
                 end
             end
         end
