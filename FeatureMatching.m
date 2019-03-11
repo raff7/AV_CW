@@ -4,14 +4,16 @@ classdef FeatureMatching < handle
     
     properties
         prep
-        SURFSensitivity = 700 %it's actually a treshold
-        surf_match_points_sensitivity = 100 %default =1
-        surf_maxRatio = 0.65
+        high_pass_radius = 3
+        high_pass_amount = 5
+        SURFSensitivity = 500 %it's actually a treshold
+        surf_match_points_sensitivity = 10 %default =1
+        surf_maxRatio = 0.55
         harris_match_points_sensitivity = 100 %default = 10
-        harris_maxRatio = 0.6
-        minSURFpoints = 8
-        dist_thresh = 0.2
-        grid_parameter = 0.08
+        harris_maxRatio = 0.65
+        minSURFpoints = 20
+        dist_thresh = 0.5
+        grid_parameter = 0.1
        
     end
     
@@ -43,6 +45,8 @@ classdef FeatureMatching < handle
         function transf_Match_Points= matchSurf(self)
             %% Find features, match them
             pic1 = rgb2gray(imag2d(self.prep.original_data{1}.Color));
+            %pic1 = imsharpen(pic1,'Radius',self.high_pass_radius,'Amount',self.high_pass_amount);
+            pic1 = histeq(pic1);
             i1=1;
             surf1 = detectSURFFeatures(pic1, 'MetricThreshold', self.SURFSensitivity);
             harris1 = detectHarrisFeatures(pic1);
@@ -54,8 +58,13 @@ classdef FeatureMatching < handle
             [harris_feat1_mask, harris_pts1_mask] = extractFeatures(pic1, harris1_mask);
             count = 1;%counter for succesfully matched pairs
             for i = 2:length(self.prep.original_data)
+               if(i1==24)
+                   a = 1;
+               end
                i2=i;
                pic2 = rgb2gray(imag2d(self.prep.original_data{i}.Color));
+              %pic2 = imsharpen(pic2,'Radius',self.high_pass_radius,'Amount',self.high_pass_amount);
+               pic2 = histeq(pic2);
                surf2 = detectSURFFeatures(pic2, 'MetricThreshold', self.SURFSensitivity);
                harris2 = detectHarrisFeatures(pic2);
                surf2_mask= self.remove_masked_surfs(surf2,i2);
@@ -64,7 +73,7 @@ classdef FeatureMatching < handle
                [surf_feat2_mask, surf_pts2_mask] = extractFeatures(pic2, surf2_mask);
                [harris_feat2_mask, harris_pts2_mask] = extractFeatures(pic2, harris2_mask);
 
-               surf_idx_pairs_mask = matchFeatures(surf_feat1_mask, surf_feat2_mask,'MatchThreshold',self.surf_match_points_sensitivity,'MaxRatio',self.surf_maxRatio);
+               surf_idx_pairs_mask = matchFeatures(surf_feat1_mask, surf_feat2_mask,'MatchThreshold',self.surf_match_points_sensitivity,'MaxRatio',self.surf_maxRatio,'unique',true);
                harris_idx_pairs_mask = matchFeatures(harris_feat1_mask, harris_feat2_mask,'MatchThreshold',self.harris_match_points_sensitivity,'MaxRatio',self.harris_maxRatio);
 
                surf_matchedPoints1_mask = surf_pts1_mask(surf_idx_pairs_mask(:,1));
@@ -72,7 +81,8 @@ classdef FeatureMatching < handle
                harris_matchedPoints1_mask = harris_pts1_mask(harris_idx_pairs_mask(:,1));
                harris_matchedPoints2_mask = harris_pts2_mask(harris_idx_pairs_mask(:,2  ));
                
-               if length(surf_matchedPoints1_mask)+length(harris_matchedPoints1_mask) < self.minSURFpoints %if not enough points are found, increase sensitivity
+               if length(surf_matchedPoints1_mask) < self.minSURFpoints %if not enough points are found, increase sensitivity
+                   fprintf("\nCant finde enough matces for match %i, %i: found %i matches",i1,i2,length(surf_matchedPoints1_mask))
                    self.show(pic1,pic2,surf_matchedPoints1_mask,surf_matchedPoints2_mask,harris_matchedPoints1_mask,harris_matchedPoints2_mask,surf1_mask,surf2_mask,harris1_mask,harris2_mask,i1,i2)
                    continue
                
@@ -109,6 +119,7 @@ classdef FeatureMatching < handle
                     end
                    %}
                else
+                   fprintf("\nfound enough matces for match %i, %i: %i matcehs",i1,i2,length(surf_matchedPoints1_mask))
                    Match_Points{count}.points1 = [surf_pts1_mask(surf_idx_pairs_mask(:,1)).Location;harris_pts1_mask(harris_idx_pairs_mask(:,1)).Location];
                    Match_Points{count}.points2 = [surf_pts2_mask(surf_idx_pairs_mask(:,2)).Location;harris_pts2_mask(harris_idx_pairs_mask(:,2)).Location];
                    Match_Points{count}.ID1 = i1;
@@ -179,7 +190,8 @@ classdef FeatureMatching < handle
              %plot image1, and SURF points (matched, not matched and
              %masked)
              figure('Position',[750 50 700 500])
-             imshow(imag2d(self.prep.original_data{i1}.Color))
+             %imshow(imsharpen(imag2d(self.prep.original_data{i1}.Color),'Radius',self.high_pass_radius,'Amount',self.high_pass_amount))
+             imshow(histeq(imag2d(self.prep.original_data{i1}.Color)))
              hold on;
              scatter(surf1_mask.Location(:,1),surf1_mask.Location(:,2),'r')
              scatter(harris1_mask.Location(:,1),harris1_mask.Location(:,2),'y')
@@ -190,7 +202,8 @@ classdef FeatureMatching < handle
              legend('Unmatched SURF points','Unmatched HARRIS points','Matched SURF points','Matched HARRIS points');
 
              figure('Position',[0 50 700 500])
-             imshow(imag2d(self.prep.original_data{i2}.Color))
+             %imshow(imsharpen(imag2d(self.prep.original_data{i2}.Color),'Radius',self.high_pass_radius,'Amount',self.high_pass_amount))
+             imshow(histeq(imag2d(self.prep.original_data{i2}.Color)))
              hold on;
              scatter(surf2_mask.Location(:,1),surf2_mask.Location(:,2),'r')
              scatter(harris2_mask.Location(:,1),harris2_mask.Location(:,2),'y')

@@ -21,7 +21,7 @@ classdef Preprocess < handle
         function self = Preprocess(file_name)
             %% Read the data
             data = load(file_name);
-            self.data = data.pcl_train(32:36);
+            self.data = data.pcl_train(1:15);
             self.original_data = self.data;
             self.removed_points = cell(1,length(self.data));
             for i=1:length(self.data)
@@ -172,7 +172,8 @@ classdef Preprocess < handle
             for i=1:length(self.original_data)
             	data = self.original_data{i}.Location(:,3);
                 data = reshape(data,[640, 480]);
-                filt_data = nanconv(data, ones(30)/sum(sum(ones(30))),'edge','nanout');
+                filter = fspecial('gaussian',30,5);
+                filt_data = nanconv(data, filter,'edge','nanout');
                 new_data = reshape(filt_data,[640*480,1]);
                 subplot(2,1,1), pcshow(self.original_data{i})
                 loc = [self.original_data{i}.Location(:,1:2),new_data];
