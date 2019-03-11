@@ -25,7 +25,7 @@ estimated_transl = mean(target_pts) - mean(source_pts) * estimated_Rmat';
 
 model = {};
 model.Rmat = estimated_Rmat;
-model.transl = estimated_transl;
+model.transl = estimated_transl';
 
 end
 

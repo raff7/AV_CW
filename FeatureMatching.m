@@ -241,19 +241,22 @@ classdef FeatureMatching < handle
         function out_pc = merge_point_clouds(self,matches, transformations)
             % Add first point cloud
             out_pc = self.prep.data{1};
-            cum_transf = eye(4);
+            
+            cum_aff_transf = ones(4);
             close all;
 
             for i = 1:length(matches)
                 match = matches{i};
-                aff_transf = transformations{i};
+                mod = transformations{i};
+                
+                affine_mat = [mod.Rmat, mod.transl; zeros(1,3), 1];
 
-                cum_transf = cum_transf * aff_transf;
+                cum_aff_transf = affine_mat * cum_aff_transf;
 
                 pc2 = self.prep.data{match.ID2};
                 n_pts2 = size(pc2.Location, 1);
 
-                new_pts = [pc2.Location, ones(n_pts2, 1)] / cum_transf;
+                new_pts = [pc2.Location, ones(n_pts2, 1)] / cum_aff_transf';
                 new_pts = new_pts(:, 1:3);
 
                 new_pc2 = pointCloud(new_pts, 'Color', pc2.Color);
@@ -284,7 +287,7 @@ classdef FeatureMatching < handle
 
                 ransac_input = [pts1, ones(n_points, 1), pts2, ones(n_points, 1)];
                    
-                [aff_mat, inlier_idx] = ransac(ransac_input,fit_fnc,dist_fnc,4,self.dist_thresh);
+                [aff_mat, inlier_idx] = ransac(ransac_input,fit_fnc,dist_fnc,3,self.dist_thresh);
                 inlier_count = sum(inlier_idx);
 
                 if inlier_count / n_points < 0.5
