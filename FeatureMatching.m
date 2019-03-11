@@ -178,20 +178,18 @@ classdef FeatureMatching < handle
         function show(self,pic1,pic2,surf_matchedPoints1_mask,surf_matchedPoints2_mask,harris_matchedPoints1_mask,harris_matchedPoints2_mask,surf1_mask,surf2_mask,harris1_mask,harris2_mask,i1,i2)
              %Plot matched features and connections
              close all
-             figure('Position',[700 450 700 500])
-             showMatchedFeatures(pic1,pic2,surf_matchedPoints1_mask,surf_matchedPoints2_mask);
+             subplot(2,2,1),showMatchedFeatures(pic1,pic2,surf_matchedPoints1_mask,surf_matchedPoints2_mask);
              title('SURF matches')
              legend('matched points 1','matched points 2');
-             figure('Position',[0 450 700 500])
-             showMatchedFeatures(pic1,pic2,harris_matchedPoints1_mask,harris_matchedPoints2_mask);
+             subplot(2,2,2),showMatchedFeatures(pic1,pic2,harris_matchedPoints1_mask,harris_matchedPoints2_mask);
              title('HARRIS matches')
              legend('matched points 1','matched points 2');
              
              %plot image1, and SURF points (matched, not matched and
              %masked)
-             figure('Position',[750 50 700 500])
              %imshow(imsharpen(imag2d(self.prep.original_data{i1}.Color),'Radius',self.high_pass_radius,'Amount',self.high_pass_amount))
-             imshow(histeq(imag2d(self.prep.original_data{i1}.Color)))
+             subplot(2,2,3),imshow(histeq(imag2d(self.prep.original_data{i1}.Color)))
+             title("Image 1");
              hold on;
              scatter(surf1_mask.Location(:,1),surf1_mask.Location(:,2),'r')
              scatter(harris1_mask.Location(:,1),harris1_mask.Location(:,2),'y')
@@ -201,9 +199,9 @@ classdef FeatureMatching < handle
 
              legend('Unmatched SURF points','Unmatched HARRIS points','Matched SURF points','Matched HARRIS points');
 
-             figure('Position',[0 50 700 500])
              %imshow(imsharpen(imag2d(self.prep.original_data{i2}.Color),'Radius',self.high_pass_radius,'Amount',self.high_pass_amount))
-             imshow(histeq(imag2d(self.prep.original_data{i2}.Color)))
+             subplot(2,2,4),imshow(histeq(imag2d(self.prep.original_data{i2}.Color)))
+             title("Image 2")
              hold on;
              scatter(surf2_mask.Location(:,1),surf2_mask.Location(:,2),'r')
              scatter(harris2_mask.Location(:,1),harris2_mask.Location(:,2),'y')
@@ -211,7 +209,7 @@ classdef FeatureMatching < handle
              scatter(harris_matchedPoints2_mask.Location(:,1),harris_matchedPoints2_mask.Location(:,2),'b','filled')
              legend('Unmatched SURF points','Unmatched HARRIS points','Matched SURF points','Matched HARRIS points');
 
-             pause(self.prep.pause_time)
+             pause()
         end
         
         function returning = transform_matchPoints(self,MP)
