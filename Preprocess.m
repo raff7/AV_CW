@@ -3,7 +3,7 @@ classdef Preprocess < handle
     %  to remove unwanted points
     
     properties
-        pause_time = 2
+        pause_time = 1
         im_height = 640;%//
         im_width = 480; %Size of the input image
         distance_threshold = 3.5;%Treshold of z-distance to remove points.
@@ -21,7 +21,7 @@ classdef Preprocess < handle
         function self = Preprocess(file_name)
             %% Read the data
             data = load(file_name);
-            self.data = data.pcl_train(2:4);
+            self.data = data.pcl_train(1:5);
             self.original_data = self.data;
             self.removed_points = cell(1,length(self.data));
             for i=1:length(self.data)

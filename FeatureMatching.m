@@ -11,9 +11,9 @@ classdef FeatureMatching < handle
         surf_maxRatio = 0.55
         harris_match_points_sensitivity = 100 %default = 10
         harris_maxRatio = 0.65
-        minSURFpoints = 20
-        dist_thresh = 0.5
-        grid_parameter = 0.1
+        minSURFpoints = 15
+        dist_thresh = 0.1
+        grid_parameter = 0.05
        
     end
     
@@ -209,7 +209,7 @@ classdef FeatureMatching < handle
              scatter(harris_matchedPoints2_mask.Location(:,1),harris_matchedPoints2_mask.Location(:,2),'b','filled')
              legend('Unmatched SURF points','Unmatched HARRIS points','Matched SURF points','Matched HARRIS points');
 
-             pause()
+             pause(self.prep.pause_time)
         end
         
         function returning = transform_matchPoints(self,MP)
