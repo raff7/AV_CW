@@ -85,39 +85,6 @@ classdef FeatureMatching < handle
                    fprintf("\nCant finde enough matces for match %i, %i: found %i matches",i1,i2,length(surf_matchedPoints1_mask))
                    self.show(pic1,pic2,surf_matchedPoints1_mask,surf_matchedPoints2_mask,harris_matchedPoints1_mask,harris_matchedPoints2_mask,surf1_mask,surf2_mask,harris1_mask,harris2_mask,i1,i2)
                    continue
-               
-                   %{
-                   new_surf1 = detectSURFFeatures(pic1, 'MetricThreshold', self.HIGH_SURFSensitivity);
-                   new_surf2 = detectSURFFeatures(pic2, 'MetricThreshold', self.HIGH_SURFSensitivity);
-                   new_surf1 = detectHarrisFeatures(pic1);
-                   new_surf2 = detectHarrisFeatures(pic2);
-                   
-                   new_surf1_mask= self.remove_masked_surfs(new_surf1,i1);
-                   new_surf2_mask= self.remove_masked_surfs(new_surf2,i2);
-                   
-                   [new_feat1_mask, new_pts1_mask] = extractFeatures(pic1, new_surf1_mask);
-                   [new_feat2_mask, new_pts2_mask] = extractFeatures(pic2, new_surf2_mask);
-               
-                   new_idx_pairs_mask = matchFeatures(new_feat1_mask, new_feat2_mask);
-               
-                   new_matchedPoints1_mask = new_pts1_mask(new_idx_pairs_mask(:,1));
-                   new_matchedPoints2_mask = new_pts2_mask(new_idx_pairs_mask(:,2 ));
-               
-               
-                    if length(new_matchedPoints1_mask) < self.minSURFpoints%CHECK if with higher sensitivity there are enough points
-                        self.show(pic1,pic2,new_matchedPoints1_mask,new_matchedPoints2_mask,new_surf1_mask,new_surf2_mask,i1,i2)
-                        continue
-                   
-                    else
-                        Match_Points{count}.SURF1 = new_pts1_mask(new_idx_pairs_mask(:,1));
-                        Match_Points{count}.SURF2 = new_pts2_mask(new_idx_pairs_mask(:,2));
-                        Match_Points{count}.ID1 = i1;
-                        Match_Points{count}.ID2 = i2;
-                        count = count + 1;
-                        self.show(pic1,pic2,new_matchedPoints1_mask,new_matchedPoints2_mask,new_surf1_mask,new_surf2_mask,i1,i2)
-              
-                    end
-                   %}
                else
                    fprintf("\nfound enough matces for match %i, %i: %i matcehs",i1,i2,length(surf_matchedPoints1_mask))
                    Match_Points{count}.points1 = [surf_pts1_mask(surf_idx_pairs_mask(:,1)).Location;harris_pts1_mask(harris_idx_pairs_mask(:,1)).Location];
@@ -240,7 +207,7 @@ classdef FeatureMatching < handle
             % Add first point cloud
             out_pc = self.prep.data{1};
             
-            cum_aff_transf = ones(4);
+            cum_aff_transf = eye(4);
             close all;
 
             for i = 1:length(matches)
@@ -261,7 +228,8 @@ classdef FeatureMatching < handle
 
                 out_pc = pcmerge(out_pc, new_pc2, self.grid_parameter);
 
-                close all
+                %close all
+                figure()
                 pcshow(out_pc)
                 pause()
 
