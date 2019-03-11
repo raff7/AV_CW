@@ -16,10 +16,10 @@ Rmat = rotx(x_angle) * roty(y_angle) * rotz(z_angle);
 
 affine_mat = [Rmat, transl; zeros(1,3), 1];
 
-transformed_data = aug_data * affine_mat;
+transformed_data = (data * Rmat' + transl');
 
 % Add noise
-noise = [randn(n_points, 3)*0.05, zeros(n_points, 1)];
+noise = randn(n_points, 3)*0.05;
 
 noisy_transf_data = transformed_data + noise;
 
