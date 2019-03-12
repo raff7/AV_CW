@@ -8,14 +8,14 @@ classdef FeatureMatching < handle
         high_pass_amount = 5
         SURFSensitivity = 500 %it's actually a treshold
         surf_match_points_sensitivity = 10 %default =1
-        surf_maxRatio = 0.55
+        surf_maxRatio = 0.6
         harris_match_points_sensitivity = 100 %default = 10
         harris_maxRatio = 0.65
         minSURFpoints = 15
         dist_thresh = 0.1
         grid_parameter = 0.01
         
-        plot_stuff = false
+        plot_stuff = true
        
     end
     
@@ -153,6 +153,7 @@ classdef FeatureMatching < handle
         function show(self,pic1,pic2,surf_matchedPoints1_mask,surf_matchedPoints2_mask,harris_matchedPoints1_mask,harris_matchedPoints2_mask,surf1_mask,surf2_mask,harris1_mask,harris2_mask,i1,i2)
              %Plot matched features and connections
              close all
+             
              subplot(2,2,1),showMatchedFeatures(pic1,pic2,surf_matchedPoints1_mask,surf_matchedPoints2_mask);
              title('SURF matches')
              legend('matched points 1','matched points 2');
@@ -166,11 +167,11 @@ classdef FeatureMatching < handle
              subplot(2,2,3),imshow(histeq(imag2d(self.prep.original_data{i1}.Color)))
              title("Image 1");
              hold on;
-             scatter(surf1_mask.Location(:,1),surf1_mask.Location(:,2),'r')
-             scatter(harris1_mask.Location(:,1),harris1_mask.Location(:,2),'y')
+             scatter(surf1_mask.Location(:,1),surf1_mask.Location(:,2),'r','.')
+             scatter(harris1_mask.Location(:,1),harris1_mask.Location(:,2),'y','.')
 
-             scatter(surf_matchedPoints1_mask.Location(:,1),surf_matchedPoints1_mask.Location(:,2),'g','filled')
-             scatter(harris_matchedPoints1_mask.Location(:,1),harris_matchedPoints1_mask.Location(:,2),'b','filled')
+             scatter(surf_matchedPoints1_mask.Location(:,1),surf_matchedPoints1_mask.Location(:,2),'g','.')
+             scatter(harris_matchedPoints1_mask.Location(:,1),harris_matchedPoints1_mask.Location(:,2),'b','.')
 
              legend('Unmatched SURF points','Unmatched HARRIS points','Matched SURF points','Matched HARRIS points');
 
@@ -178,10 +179,10 @@ classdef FeatureMatching < handle
              subplot(2,2,4),imshow(histeq(imag2d(self.prep.original_data{i2}.Color)))
              title("Image 2")
              hold on;
-             scatter(surf2_mask.Location(:,1),surf2_mask.Location(:,2),'r')
-             scatter(harris2_mask.Location(:,1),harris2_mask.Location(:,2),'y')
-             scatter(surf_matchedPoints2_mask.Location(:,1),surf_matchedPoints2_mask.Location(:,2),'g','filled')
-             scatter(harris_matchedPoints2_mask.Location(:,1),harris_matchedPoints2_mask.Location(:,2),'b','filled')
+             scatter(surf2_mask.Location(:,1),surf2_mask.Location(:,2),'r','.')
+             scatter(harris2_mask.Location(:,1),harris2_mask.Location(:,2),'y','.')
+             scatter(surf_matchedPoints2_mask.Location(:,1),surf_matchedPoints2_mask.Location(:,2),'g','.')
+             scatter(harris_matchedPoints2_mask.Location(:,1),harris_matchedPoints2_mask.Location(:,2),'b','.')
              legend('Unmatched SURF points','Unmatched HARRIS points','Matched SURF points','Matched HARRIS points');
 
              pause(self.prep.pause_time)
@@ -237,13 +238,16 @@ classdef FeatureMatching < handle
                 fprintf("\nTransforming from frame %d to initial frame coordinates", match.ID2)
                 if self.plot_stuff
                     close all
-                    figure()
+                    figure('Position',[300 150 1000 600])
                     pcshow(out_pc)
-                    pause(1)
+                    camup([0 -1 0])
+                    pause(self.prep.pause_time)
                 end
 
             end
+            figure('Position',[300 150 1000 600])
             pcshow(out_pc)
+            camup([0 -1 0])
             pause()
         end
         

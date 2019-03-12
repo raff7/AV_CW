@@ -7,7 +7,7 @@ classdef Preprocess < handle
         im_height = 640;%//
         im_width = 480; %Size of the input image
         distance_threshold = 3.5;%Treshold of z-distance to remove points.
-        W_edge = 5;%distance from the edge (in pixels) to be removed
+        W_edge = 10;%distance from the edge (in pixels) to be removed
         remove_man = false;%Do we want to remove bob?
         man_frame = 27;
         square_dist_neig_treshold = 0.05;%minimum istance to consider 2 points "neighbours" (in meters)
@@ -21,7 +21,7 @@ classdef Preprocess < handle
         function self = Preprocess(file_name)
             %% Read the data
             data = load(file_name);
-            self.data = data.pcl_train();
+            self.data = data.pcl_train(1:6);
             self.original_data = self.data;
             self.removed_points = cell(1,length(self.data));
             for i=1:length(self.data)
@@ -160,6 +160,7 @@ classdef Preprocess < handle
                close all
                figure('Position',[0 300 700 500])
                pcshow(self.data{i})
+               camup([0 -1 0]);
                figure('Position',[650 100 700 500])
                mask_img = bsxfun(@times, self.original_data{i}.Color(), cast(self.removed_points{i}(:), 'like', self.original_data{i}.Color()));
                imshow(imag2d(mask_img));
@@ -169,6 +170,7 @@ classdef Preprocess < handle
                     close all
                     figure('Position',[0 300 700 500])
                     pcshow(self.data{i})
+                    camup([0 -1 0])
                     figure('Position',[650 100 700 500])
                     mask_img = bsxfun(@times, self.original_data{i}.Color(), cast(self.removed_points{i}(:), 'like', self.original_data{i}.Color()));
                     imshow(imag2d(mask_img));
