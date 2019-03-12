@@ -21,7 +21,7 @@ classdef Preprocess < handle
         function self = Preprocess(file_name)
             %% Read the data
             data = load(file_name);
-            self.data = data.pcl_train(8:15);
+            self.data = data.pcl_train();
             self.original_data = self.data;
             self.removed_points = cell(1,length(self.data));
             for i=1:length(self.data)
@@ -61,16 +61,31 @@ classdef Preprocess < handle
             %FIND_EDGE Find the points on the edge of the image
             %  W is the distance in pixels from the edge to be considered part of the
             %  edge, office is the original cell of point clouds
+            
+            % Prepare reusable mask
+            all_pic_mask = true(self.im_height, self.im_width);
+            all_pic_mask(1:self.W_edge, :) = false;
+            all_pic_mask(:, 1:self.W_edge) = false;
+            all_pic_mask(self.im_height - self.W_edge:self.im_height, :) = false;
+            all_pic_mask(:, self.im_width - self.W_edge:self.im_width) = false;
+            % Flatten 2D mask
+            all_pic_mask = reshape(all_pic_mask, [], 1);
+            
             mask = {};
             for i = 1:length(self.original_data)
                 points = self.original_data{i}.Location;
-                mask{i} = ones(1,length(points)); 
+                % mask{i} = ones(length(points), 1);
+                mask{i} = all_pic_mask(:);
+                
+                %{
                 for j=1:length(points)
                     [x,y]=point2coord(j,self.im_height);
                     if(x<self.W_edge || y<self.W_edge || x>self.im_width-self.W_edge || y>self.im_height-self.W_edge )
                         mask{i}(j) = 0;
                     end
                 end
+                %}
+                
             end
             self.merge_masks(mask);%Merge themask to previously eliminated pixels
             self.remove_masked_points()%remove masked points from data

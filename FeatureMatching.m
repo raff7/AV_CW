@@ -14,6 +14,8 @@ classdef FeatureMatching < handle
         minSURFpoints = 15
         dist_thresh = 0.1
         grid_parameter = 0.05
+        
+        plot_stuff = false
        
     end
     
@@ -38,8 +40,10 @@ classdef FeatureMatching < handle
             end
             self.prep.find_outliers()
             fprintf("DONE")
-            self.prep.show()
-
+            
+            if self.plot_stuff
+                self.prep.show()
+            end
         end
         
         function transf_Match_Points= matchSurf(self)
@@ -83,7 +87,9 @@ classdef FeatureMatching < handle
                
                if length(surf_matchedPoints1_mask) < self.minSURFpoints %if not enough points are found, increase sensitivity
                    fprintf("\nCant finde enough matces for match %i, %i: found %i matches",i1,i2,length(surf_matchedPoints1_mask))
-                   self.show(pic1,pic2,surf_matchedPoints1_mask,surf_matchedPoints2_mask,harris_matchedPoints1_mask,harris_matchedPoints2_mask,surf1_mask,surf2_mask,harris1_mask,harris2_mask,i1,i2)
+                   if self.plot_stuff
+                        self.show(pic1,pic2,surf_matchedPoints1_mask,surf_matchedPoints2_mask,harris_matchedPoints1_mask,harris_matchedPoints2_mask,surf1_mask,surf2_mask,harris1_mask,harris2_mask,i1,i2)
+                   end
                    continue
                else
                    fprintf("\nfound enough matces for match %i, %i: %i matcehs",i1,i2,length(surf_matchedPoints1_mask))
@@ -92,7 +98,9 @@ classdef FeatureMatching < handle
                    Match_Points{count}.ID1 = i1;
                    Match_Points{count}.ID2 = i2;
                    count = count + 1;
-                   self.show(pic1,pic2,surf_matchedPoints1_mask,surf_matchedPoints2_mask,harris_matchedPoints1_mask,harris_matchedPoints2_mask,surf1_mask,surf2_mask,harris1_mask,harris2_mask,i1,i2)
+                   if self.plot_stuff
+                       self.show(pic1,pic2,surf_matchedPoints1_mask,surf_matchedPoints2_mask,harris_matchedPoints1_mask,harris_matchedPoints2_mask,surf1_mask,surf2_mask,harris1_mask,harris2_mask,i1,i2)
+                   end
                end
 
                
@@ -207,33 +215,36 @@ classdef FeatureMatching < handle
             % Add first point cloud
             out_pc = self.prep.data{1};
             
-            cum_aff_transf = eye(4);
+            cum_rotation = eye(3);
+            cum_translation = zeros(3,1);
             close all;
 
             for i = 1:length(matches)
                 match = matches{i};
                 mod = transformations{i};
-                
-                affine_mat = [mod.Rmat, mod.transl; zeros(1,3), 1];
 
-                cum_aff_transf = affine_mat * cum_aff_transf;
+                cum_rotation = mod.Rmat * cum_rotation;
+                cum_translation = mod.Rmat * cum_translation + mod.transl;
 
                 pc2 = self.prep.data{match.ID2};
                 n_pts2 = size(pc2.Location, 1);
 
-                new_pts = [pc2.Location, ones(n_pts2, 1)] / cum_aff_transf';
-                new_pts = new_pts(:, 1:3);
+                new_pts = (pc2.Location - cum_translation') / cum_rotation';
 
                 new_pc2 = pointCloud(new_pts, 'Color', pc2.Color);
 
                 out_pc = pcmerge(out_pc, new_pc2, self.grid_parameter);
-
-                %close all
-                figure()
-                pcshow(out_pc)
-                pause()
+                fprintf("\nTransforming from frame %d to initial frame coordinates", match.ID2)
+                if self.plot_stuff
+                    close all
+                    figure()
+                    pcshow(out_pc)
+                    pause(1)
+                end
 
             end
+            pcshow(out_pc)
+            pause()
         end
         
         function transformations = find_pairwise_transf(self,matched_pts)
@@ -253,8 +264,14 @@ classdef FeatureMatching < handle
 
                 ransac_input = [pts1, ones(n_points, 1), pts2, ones(n_points, 1)];
                    
-                [aff_mat, inlier_idx] = ransac(ransac_input,fit_fnc,dist_fnc,3,self.dist_thresh);
+                %[aff_mat, inlier_idx] = ransac(ransac_input,fit_fnc,dist_fnc,3,self.dist_thresh);
+                
+                data = [pts1, pts2];
+                aff_mat = fit_fnc(data);
+                inlier_idx = dist_fnc(aff_mat, data) < self.dist_thresh;
                 inlier_count = sum(inlier_idx);
+                
+                fprintf("\nNOT USING RANSAC ---- There are %d inliers over %d points %d", inlier_count, n_points, inlier_count * 100 / n_points)
 
                 if inlier_count / n_points < 0.5
                     fprintf('Less than half of the points agree on the model %f',(inlier_count / n_points))
