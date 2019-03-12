@@ -200,9 +200,9 @@ classdef Preprocess < handle
         function pcanimate(self,pc)
             pcshow(pc)
             camup([0 -1 0])%set correct camera angle
-            for i=1:35
-                 view(20-(i*1.3),-90+(i*2))
-                 pause(self.pause_time/35)
+            for i=1:70
+                 view(20-(i*0.65),-90+(i*1))
+                 pause(self.pause_time/70)
             end 
         end
     end
