@@ -1,4 +1,5 @@
 %%
+%{
 n_points = 1000;
 
 % Generate a cloud of random 3D points
@@ -37,6 +38,8 @@ ransac_input = [aug_data, noisy_transf_data];
 sum(inlier_ids)
 affine_mat
 estimated
+
+%}
 %%
 addpath('./utils/');
 %prep = Preprocess("office1.mat");

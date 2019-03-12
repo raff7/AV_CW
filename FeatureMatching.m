@@ -264,9 +264,9 @@ classdef FeatureMatching < handle
 
                 ransac_input = [pts1, pts2];
                    
-                [aff_mat, inlier_idx] = ransac(ransac_input,fit_fnc,dist_fnc,4,self.dist_thresh);
+                [aff_mat, inlier_idx] = ransac(ransac_input,fit_fnc,dist_fnc,4,self.dist_thresh,'Confidence',99.5,'MaxNumTrials',3000);
                 
-                data = [pts1, pts2];
+                %data = [pts1, pts2];
                 %aff_mat = fit_fnc(data);
                 %inlier_idx = dist_fnc(aff_mat, data) < self.dist_thresh;
                 inlier_count = sum(inlier_idx);
