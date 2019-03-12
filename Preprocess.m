@@ -3,7 +3,7 @@ classdef Preprocess < handle
     %  to remove unwanted points
     
     properties
-        pause_time = 1
+        pause_time = 3
         im_height = 640;%//
         im_width = 480; %Size of the input image
         distance_threshold = 3.5;%Treshold of z-distance to remove points.
@@ -21,7 +21,7 @@ classdef Preprocess < handle
         function self = Preprocess(file_name)
             %% Read the data
             data = load(file_name);
-            self.data = data.pcl_train(1:6);
+            self.data = data.pcl_train;%(1:6);
             self.original_data = self.data;
             self.removed_points = cell(1,length(self.data));
             for i=1:length(self.data)
@@ -158,23 +158,20 @@ classdef Preprocess < handle
         function show(self,i)
             if nargin>1
                close all
-               figure('Position',[0 300 700 500])
-               pcshow(self.data{i})
-               camup([0 -1 0]);
+               
                figure('Position',[650 100 700 500])
                mask_img = bsxfun(@times, self.original_data{i}.Color(), cast(self.removed_points{i}(:), 'like', self.original_data{i}.Color()));
                imshow(imag2d(mask_img));
-               pause(self.pause_time)
+               figure('Position',[0 300 700 500])
+               self.pcanimate(self.data{i})
             else
                 for i=1:length(self.original_data)
                     close all
-                    figure('Position',[0 300 700 500])
-                    pcshow(self.data{i})
-                    camup([0 -1 0])
                     figure('Position',[650 100 700 500])
                     mask_img = bsxfun(@times, self.original_data{i}.Color(), cast(self.removed_points{i}(:), 'like', self.original_data{i}.Color()));
                     imshow(imag2d(mask_img));
-                    pause(self.pause_time)
+                    figure('Position',[0 300 700 500])
+                    self.pcanimate(self.data{i})
                 end
             end
         end
@@ -200,6 +197,13 @@ classdef Preprocess < handle
                 %pause()
             end
         end
-       
+        function pcanimate(self,pc)
+            pcshow(pc)
+            camup([0 -1 0])%set correct camera angle
+            for i=1:40
+                 view(15-(i*1),-95+(i*2))
+                 pause(self.pause_time/40)
+            end 
+        end
     end
 end

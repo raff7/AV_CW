@@ -153,7 +153,7 @@ classdef FeatureMatching < handle
         function show(self,pic1,pic2,surf_matchedPoints1_mask,surf_matchedPoints2_mask,harris_matchedPoints1_mask,harris_matchedPoints2_mask,surf1_mask,surf2_mask,harris1_mask,harris2_mask,i1,i2)
              %Plot matched features and connections
              close all
-             
+             figure('Position',[300 150 1000 600])
              subplot(2,2,1),showMatchedFeatures(pic1,pic2,surf_matchedPoints1_mask,surf_matchedPoints2_mask);
              title('SURF matches')
              legend('matched points 1','matched points 2');
@@ -239,16 +239,14 @@ classdef FeatureMatching < handle
                 if self.plot_stuff
                     close all
                     figure('Position',[300 150 1000 600])
-                    pcshow(out_pc)
-                    camup([0 -1 0])
-                    pause(self.prep.pause_time)
+                    self.prep.pcanimate(out_pc)
+ 
                 end
 
             end
             figure('Position',[300 150 1000 600])
-            pcshow(out_pc)
-            camup([0 -1 0])
-            pause()
+            self.prep.pcanimate(out_pc)
+            
         end
         
         function transformations = find_pairwise_transf(self,matched_pts)
