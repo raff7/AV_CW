@@ -56,7 +56,7 @@ classdef Preprocess < handle
             self.merge_masks(mask);%Merge themask to previously eliminated pixels
             self.remove_masked_points()%remove mask from image
         end
-
+       
         function find_edges(self)
             %FIND_EDGE Find the points on the edge of the image
             %  W is the distance in pixels from the edge to be considered part of the

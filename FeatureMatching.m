@@ -13,7 +13,7 @@ classdef FeatureMatching < handle
         harris_maxRatio = 0.65
         minSURFpoints = 15
         dist_thresh = 0.1
-        grid_parameter = 0.05
+        grid_parameter = 0.01
         
         plot_stuff = false
        
@@ -262,16 +262,16 @@ classdef FeatureMatching < handle
 
                 n_points = size(pts1, 1);
 
-                ransac_input = [pts1, ones(n_points, 1), pts2, ones(n_points, 1)];
+                ransac_input = [pts1, pts2];
                    
-                %[aff_mat, inlier_idx] = ransac(ransac_input,fit_fnc,dist_fnc,3,self.dist_thresh);
+                [aff_mat, inlier_idx] = ransac(ransac_input,fit_fnc,dist_fnc,4,self.dist_thresh);
                 
                 data = [pts1, pts2];
-                aff_mat = fit_fnc(data);
-                inlier_idx = dist_fnc(aff_mat, data) < self.dist_thresh;
+                %aff_mat = fit_fnc(data);
+                %inlier_idx = dist_fnc(aff_mat, data) < self.dist_thresh;
                 inlier_count = sum(inlier_idx);
                 
-                fprintf("\nNOT USING RANSAC ---- There are %d inliers over %d points %d", inlier_count, n_points, inlier_count * 100 / n_points)
+                %fprintf("\nNOT USING RANSAC ---- There are %d inliers over %d points %d", inlier_count, n_points, inlier_count * 100 / n_points)
 
                 if inlier_count / n_points < 0.5
                     fprintf('Less than half of the points agree on the model %f',(inlier_count / n_points))
