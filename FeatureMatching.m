@@ -15,7 +15,7 @@ classdef FeatureMatching < handle
         dist_thresh = 0.1
         grid_parameter = 0.01
         
-        plot_stuff = true
+        plot_stuff = false
        
     end
     
