@@ -3,26 +3,24 @@ classdef FeatureMatching < handle
     %   Detailed explanation goes here
     
     properties
-        prep
-        high_pass_radius = 3
-        high_pass_amount = 5
-        SURFSensitivity = 500 %it's actually a treshold
-        surf_match_points_sensitivity = 10 %default =1
-        surf_maxRatio = 0.6
-        harris_match_points_sensitivity = 100 %default = 10
-        harris_maxRatio = 0.65
-        minSURFpoints = 15
-        dist_thresh = 0.1
-        grid_parameter = 0.01
+        prep%the preprocess object containing all preprocess information
+        SURFSensitivity = 500 %it's actually a treshold for SURF detection
+        surf_match_points_sensitivity = 10 %sensitivity for surf match default =1
+        surf_maxRatio = 0.6%increase to make it easier for SURF to find matches (more false matches as well)
+        harris_match_points_sensitivity = 100 %sensitivity for harris match. default = 10
+        harris_maxRatio = 0.65%increase to make it easier for HARRIS to find matches (more false matches as well)
+        minSURFpoints = 15%minimum acceptable number of surf points, if less, skip frame
+        dist_thresh = 0.1%RANSAC distance threshold for inlaiers 
+        grid_parameter = 0.01%pcmerge grid parameter
         
-        plot_stuff = false
+        plot_stuff = false%plot all images
        
     end
     
     methods
         function self = FeatureMatching(file)
             %FEATUREMATCHING Construct an instance of this class
-            %   In it, construct a preprocess object.
+            %In it, construct a preprocess object and do all appropriate preprocessings.
             self.prep = Preprocess(file);
             fprintf("Start Preprocessing- Smooth data\n")
             self.prep.smooth_data()
@@ -48,9 +46,9 @@ classdef FeatureMatching < handle
         
         function transf_Match_Points= matchSurf(self)
             %% Find features, match them
+            %return a list of matched points for each consecutive frame cupple
             pic1 = rgb2gray(imag2d(self.prep.original_data{1}.Color));
-            %pic1 = imsharpen(pic1,'Radius',self.high_pass_radius,'Amount',self.high_pass_amount);
-            pic1 = histeq(pic1);
+            pic1 = histeq(pic1);%histogram equalization to make image sharper
             i1=1;
             surf1 = detectSURFFeatures(pic1, 'MetricThreshold', self.SURFSensitivity);
             harris1 = detectHarrisFeatures(pic1);
@@ -62,12 +60,8 @@ classdef FeatureMatching < handle
             [harris_feat1_mask, harris_pts1_mask] = extractFeatures(pic1, harris1_mask);
             count = 1;%counter for succesfully matched pairs
             for i = 2:length(self.prep.original_data)
-               if(i1==24)
-                   a = 1;
-               end
                i2=i;
                pic2 = rgb2gray(imag2d(self.prep.original_data{i}.Color));
-              %pic2 = imsharpen(pic2,'Radius',self.high_pass_radius,'Amount',self.high_pass_amount);
                pic2 = histeq(pic2);
                surf2 = detectSURFFeatures(pic2, 'MetricThreshold', self.SURFSensitivity);
                harris2 = detectHarrisFeatures(pic2);
@@ -85,13 +79,15 @@ classdef FeatureMatching < handle
                harris_matchedPoints1_mask = harris_pts1_mask(harris_idx_pairs_mask(:,1));
                harris_matchedPoints2_mask = harris_pts2_mask(harris_idx_pairs_mask(:,2  ));
                
-               if length(surf_matchedPoints1_mask) < self.minSURFpoints %if not enough points are found, increase sensitivity
+               if length(surf_matchedPoints1_mask) < self.minSURFpoints %if not enough points are found, skip frame
                    fprintf("\nCant finde enough matces for match %i, %i: found %i matches",i1,i2,length(surf_matchedPoints1_mask))
                    if self.plot_stuff
                         self.show(pic1,pic2,surf_matchedPoints1_mask,surf_matchedPoints2_mask,harris_matchedPoints1_mask,harris_matchedPoints2_mask,surf1_mask,surf2_mask,harris1_mask,harris2_mask,i1,i2)
                    end
                    continue
                else
+                   %else if enough matches are found, add them to output
+                   %list
                    fprintf("\nfound enough matces for match %i, %i: %i matcehs",i1,i2,length(surf_matchedPoints1_mask))
                    Match_Points{count}.points1 = [surf_pts1_mask(surf_idx_pairs_mask(:,1)).Location;harris_pts1_mask(harris_idx_pairs_mask(:,1)).Location];
                    Match_Points{count}.points2 = [surf_pts2_mask(surf_idx_pairs_mask(:,2)).Location;harris_pts2_mask(harris_idx_pairs_mask(:,2)).Location];
@@ -108,6 +104,8 @@ classdef FeatureMatching < handle
                
            
                %advance loop
+               % frame1 is now frame2, frame1 is a new frame (in next loop
+               % iteration)
                pic1 = pic2;
                surf1_mask = surf2_mask;
                harris1_mask = harris2_mask;
@@ -118,9 +116,12 @@ classdef FeatureMatching < handle
 
                i1 = i2;
             end
-            transf_Match_Points = self.transform_matchPoints(Match_Points);%Transform matched points in the correct data representation for the next step.
+            %Transform matched points in the correct data representation for the next step.
+            transf_Match_Points = self.transform_matchPoints(Match_Points);
         end
         function new_surf = remove_masked_surfs(self,surf,frameIDX)
+            %this function will remove from the list of SURF points all the
+            %one that are masked out by preprocessing
             counter = 1;
             mask_2d = reshape(self.prep.removed_points{frameIDX},[640, 480]);
             new_surf = SURFPoints();
@@ -136,6 +137,8 @@ classdef FeatureMatching < handle
         end
         
         function new_harris = remove_masked_harris(self,harris,frameIDX)
+            %this function will remove from the list of HARRIS points all the
+            %one that are masked out by preprocessing
             counter = 1;
             mask_2d = reshape(self.prep.removed_points{frameIDX},[640, 480]);
             %new_surf = SURFPoints();
@@ -152,6 +155,7 @@ classdef FeatureMatching < handle
         end
         function show(self,pic1,pic2,surf_matchedPoints1_mask,surf_matchedPoints2_mask,harris_matchedPoints1_mask,harris_matchedPoints2_mask,surf1_mask,surf2_mask,harris1_mask,harris2_mask,i1,i2)
              %Plot matched features and connections
+             %for display only.
              close all
              figure('Position',[300 150 1000 600])
              subplot(2,2,1),showMatchedFeatures(pic1,pic2,surf_matchedPoints1_mask,surf_matchedPoints2_mask);
@@ -163,7 +167,6 @@ classdef FeatureMatching < handle
              
              %plot image1, and SURF points (matched, not matched and
              %masked)
-             %imshow(imsharpen(imag2d(self.prep.original_data{i1}.Color),'Radius',self.high_pass_radius,'Amount',self.high_pass_amount))
              subplot(2,2,3),imshow(histeq(imag2d(self.prep.original_data{i1}.Color)))
              title("Image 1");
              hold on;
@@ -175,7 +178,6 @@ classdef FeatureMatching < handle
 
              legend('Unmatched SURF points','Unmatched HARRIS points','Matched SURF points','Matched HARRIS points');
 
-             %imshow(imsharpen(imag2d(self.prep.original_data{i2}.Color),'Radius',self.high_pass_radius,'Amount',self.high_pass_amount))
              subplot(2,2,4),imshow(histeq(imag2d(self.prep.original_data{i2}.Color)))
              title("Image 2")
              hold on;
@@ -213,6 +215,9 @@ classdef FeatureMatching < handle
         end
         
         function out_pc = merge_point_clouds(self,matches, transformations)
+            %function to merge all pointclouds given the estimated
+            %trasformation matrix
+            
             % Add first point cloud
             out_pc = self.prep.data{1};
             
@@ -250,6 +255,7 @@ classdef FeatureMatching < handle
         end
         
         function transformations = find_pairwise_transf(self,matched_pts)
+            %estimate Transformation matrix with ransac
             n_matches = length(matched_pts);
             transformations = cell(n_matches, 1);
 
@@ -275,7 +281,7 @@ classdef FeatureMatching < handle
                 
                 %fprintf("\nNOT USING RANSAC ---- There are %d inliers over %d points %d", inlier_count, n_points, inlier_count * 100 / n_points)
 
-                if inlier_count / n_points < 0.5
+                if inlier_count / n_points < 0.5%if the image was too noisy
                     fprintf('Less than half of the points agree on the model %f',(inlier_count / n_points))
                 end
                 fprintf("\nsuccess")
